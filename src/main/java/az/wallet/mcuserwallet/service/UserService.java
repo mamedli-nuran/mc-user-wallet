@@ -11,12 +11,13 @@ import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
 import az.wallet.mcuserwallet.repository.UserRepository;
 import az.wallet.mcuserwallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements az.wallet.mcuserwallet.service.impl.UserService {
@@ -46,6 +47,8 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
                         .currency(Currency.AZN)
                         .user(user)
                 .build());
+
+        log.info("User {} has been registered and created wallet successfully", user.getUsername());
         return UserRegisterResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
