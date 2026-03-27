@@ -1,6 +1,8 @@
 package az.wallet.mcuserwallet.controller;
 
+import az.wallet.mcuserwallet.domain.User;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
+import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
 import az.wallet.mcuserwallet.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +21,8 @@ public class UserController {
     private final UserService registrationService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
-        registrationService.registerUser(request);
+    public ResponseEntity<UserRegisterResponse> registerUser(@RequestBody UserRegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .build();
+                .body(registrationService.registerUser(request));
     }
 }
