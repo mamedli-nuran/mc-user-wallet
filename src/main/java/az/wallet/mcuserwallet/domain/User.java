@@ -1,6 +1,6 @@
 package az.wallet.mcuserwallet.domain;
 
-import az.wallet.mcuserwallet.domain.enums.Role;
+import az.wallet.mcuserwallet.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +39,7 @@ public class User {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserRole userRole;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,6 +1,6 @@
 package az.wallet.mcuserwallet.domain;
 
-import az.wallet.mcuserwallet.domain.enums.Currency;
+import az.wallet.mcuserwallet.domain.enums.WalletCurrency;
 import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.swing.plaf.nimbus.State;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -33,7 +32,7 @@ public class Wallet {
 
     @Column(name = "currency")
     @Enumerated(EnumType.STRING)
-    private Currency currency;
+    private WalletCurrency walletCurrency;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

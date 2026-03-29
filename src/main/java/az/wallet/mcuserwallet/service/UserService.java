@@ -1,27 +1,19 @@
 package az.wallet.mcuserwallet.service;
 
 import az.wallet.mcuserwallet.domain.User;
-import az.wallet.mcuserwallet.domain.Wallet;
-import az.wallet.mcuserwallet.domain.enums.Currency;
-import az.wallet.mcuserwallet.domain.enums.Role;
-import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
 import az.wallet.mcuserwallet.dto.request.UsernameChangeRequest;
 import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
+import az.wallet.mcuserwallet.dto.response.UsernameChangeResponse;
 import az.wallet.mcuserwallet.exception.EmailAlreadyExistsException;
-import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
 import az.wallet.mcuserwallet.exception.UserNotFoundException;
+import az.wallet.mcuserwallet.mapper.UserMapper;
 import az.wallet.mcuserwallet.repository.UserRepository;
 import az.wallet.mcuserwallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,6 +21,10 @@ import java.util.Optional;
 public class UserService implements az.wallet.mcuserwallet.service.impl.UserService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
+    private final UserMapper userMapper;
+    private final WalletService walletService;
+
+
 
     @Transactional
     public UserRegisterResponse registerUser(UserRegisterRequest request) {
@@ -36,37 +32,20 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        User user = User.builder()
-                .name(request.getName())
-                .surname(request.getSurname())
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .role(Role.USER)
-                .build();
-
+        User user = userMapper.createUser(request);
         userRepository.save(user);
-
-        walletRepository.save(Wallet.builder()
-                        .status(WalletStatus.ACTIVE)
-                        .balance(new BigDecimal(0))
-                        .currency(Currency.AZN)
-                        .user(user)
-                .build());
+        walletService.createWalletForUser(user);
 
         log.info("User {} has been registered and created wallet successfully", user.getUsername());
-        return UserRegisterResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .build();
+        return userMapper.createUserRegisterResponse(user);
     }
 
     @Transactional
-    public void changeUsername(UsernameChangeRequest request) {
-        User user = userRepository.findById(request.getId())
-                        .orElseThrow(() -> new UserNotFoundException("User with id: " + request.getId() + " not found"));
+    public UsernameChangeResponse changeUsername(UsernameChangeRequest requestBody) {
+        User user = userRepository.findById(requestBody.getId())
+                        .orElseThrow(() -> new UserNotFoundException("User with id: " + requestBody.getId() + " not found"));
+        user.setUsername(requestBody.getUsername());
 
-        user.setUsername(request.getUsername());
+        return userMapper.changeUsernameResponse(requestBody);
     }
 }

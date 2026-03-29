@@ -1,6 +1,6 @@
 package az.wallet.mcuserwallet.domain.enums;
 
-public enum Currency {
+public enum WalletCurrency {
     AZN,
     USD,
     EUR,
