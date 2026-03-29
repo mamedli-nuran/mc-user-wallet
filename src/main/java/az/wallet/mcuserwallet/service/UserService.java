@@ -6,16 +6,20 @@ import az.wallet.mcuserwallet.domain.enums.Currency;
 import az.wallet.mcuserwallet.domain.enums.Role;
 import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
+import az.wallet.mcuserwallet.dto.request.UsernameChangeRequest;
 import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
 import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
+import az.wallet.mcuserwallet.exception.UserNotFoundException;
 import az.wallet.mcuserwallet.repository.UserRepository;
 import az.wallet.mcuserwallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -54,5 +58,13 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
+    }
+
+    @Transactional
+    public void changeUsername(UsernameChangeRequest request) {
+        User user = userRepository.findById(request.getId())
+                        .orElseThrow(() -> new UserNotFoundException("User with id: " + request.getId() + " not found"));
+
+        user.setUsername(request.getUsername());
     }
 }

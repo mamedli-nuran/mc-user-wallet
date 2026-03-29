@@ -27,7 +27,7 @@ public class WallerService implements WalletService {
 
 
         if (optionalUser.isEmpty()) {
-            throw new WalletNotFoundException("Wallet with id " + userId + " not found");
+            throw new WalletNotFoundException("User's wallet with  user id " + userId + " not found");
         }
 
         return WalletInformationResponse.builder()
