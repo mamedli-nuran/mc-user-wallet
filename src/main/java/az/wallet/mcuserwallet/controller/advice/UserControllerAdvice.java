@@ -1,6 +1,7 @@
 package az.wallet.mcuserwallet.controller.advice;
 
 import az.wallet.mcuserwallet.dto.error.ErrorResponse;
+import az.wallet.mcuserwallet.exception.EmailAlreadyExistsException;
 import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
 import az.wallet.mcuserwallet.exception.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,16 +17,20 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class UserControllerAdvice {
-    @ExceptionHandler(RegisterNotCompleteException.class)
-    public ResponseEntity<?> handleRegisterNotCompleteException(RegisterNotCompleteException e){
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<?> handleEmailAlreadyExistsException(
+            EmailAlreadyExistsException e, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(409)
+                .message(e.getMessage())
+                .error("Conflict")
+                .path(request.getRequestURI())
+                .build();
+
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                // TODO сделать правильный вывод об ошибке. добавить путь откуда пришла ошибка
-                //  и что именно человек вписать неправильно
-                .body(Map.of("timestamp", LocalDateTime.now().toString(),
-                        "status", "400",
-                        "error", "Not Valid Info About User",
-                        "message", e.getMessage()));
+                .status(HttpStatus.CONFLICT)
+                .body(error);
     }
 
 

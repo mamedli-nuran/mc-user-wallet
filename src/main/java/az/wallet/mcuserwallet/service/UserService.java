@@ -8,6 +8,7 @@ import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
 import az.wallet.mcuserwallet.dto.request.UsernameChangeRequest;
 import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
+import az.wallet.mcuserwallet.exception.EmailAlreadyExistsException;
 import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
 import az.wallet.mcuserwallet.exception.UserNotFoundException;
 import az.wallet.mcuserwallet.repository.UserRepository;
@@ -15,6 +16,7 @@ import az.wallet.mcuserwallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +30,11 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
 
-
+    @Transactional
     public UserRegisterResponse registerUser(UserRegisterRequest request) {
+        if(userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
 
         User user = User.builder()
                 .name(request.getName())
@@ -39,11 +44,8 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
                 .password(request.getPassword())
                 .role(Role.USER)
                 .build();
-        try {
-            userRepository.save(user);
-        } catch (Exception e){
-            throw new RegisterNotCompleteException(e.getMessage());
-        }
+
+        userRepository.save(user);
 
         walletRepository.save(Wallet.builder()
                         .status(WalletStatus.ACTIVE)
