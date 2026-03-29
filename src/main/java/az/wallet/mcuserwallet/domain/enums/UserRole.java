@@ -1,6 +1,6 @@
 package az.wallet.mcuserwallet.domain.enums;
 
-public enum Role {
+public enum UserRole {
     ADMIN,
     USER
 }

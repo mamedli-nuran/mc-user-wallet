@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface WalletService {
     WalletInformationResponse  getWalletInformation(@PathVariable UUID userId);
+
 }

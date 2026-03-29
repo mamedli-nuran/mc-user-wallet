@@ -22,7 +22,7 @@ public class WalletControllerAdvice {
             WalletNotFoundException exception, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(404)
+                .status(HttpStatus.NOT_FOUND)
                 .message(exception.getMessage())
                 .error("UUID Not Found In Data Base")
                 .path(request.getRequestURI())
@@ -39,7 +39,7 @@ public class WalletControllerAdvice {
             MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(400)
+                .status(HttpStatus.BAD_REQUEST)
                 .message("Invalid Path Variable")
                 .error("Bad Request")
                 .path(request.getRequestURI())

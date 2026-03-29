@@ -23,7 +23,7 @@ public class UserControllerAdvice {
             EmailAlreadyExistsException e, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(409)
+                .status(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .error("Conflict")
                 .path(request.getRequestURI())
@@ -43,7 +43,7 @@ public class UserControllerAdvice {
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(404)
+                .status(HttpStatus.NOT_FOUND)
                 .error("User Not Found")
                 .message(e.getMessage())
                 .path(request.getRequestURI())
@@ -63,7 +63,7 @@ public class UserControllerAdvice {
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(400)
+                .status(HttpStatus.BAD_REQUEST)
                 .error("Bad Request")
                 .message("Invalid request format (check UUID or JSON structure)")
                 .path(request.getRequestURI())
