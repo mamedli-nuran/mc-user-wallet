@@ -1,6 +1,10 @@
 package az.wallet.mcuserwallet.controller.advice;
 
+import az.wallet.mcuserwallet.dto.error.ErrorResponse;
 import az.wallet.mcuserwallet.exception.WalletNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,32 +12,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class WalletControllerAdvice {
 
     @ExceptionHandler(WalletNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleWalletNotFoundException(WalletNotFoundException exception) {
-        Map<String, String>  body = Map.of("timestamp", LocalDateTime.now().toString(),
-                "status", "404",
-                "error", "UUID Not Found In Data Base",
-                "message", exception.getMessage());
+    public ResponseEntity<ErrorResponse> handleWalletNotFoundException(
+            WalletNotFoundException exception, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(404)
+                .message(exception.getMessage())
+                .error("UUID Not Found In Data Base")
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(error.toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(body);
+                .body(error);
     }
 
-    // TODO add path in response body
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
-        Map<String, String>  body = Map.of("timestamp", LocalDateTime.now().toString(),
-                "status", "400",
-                "error", "Bad Request",
-                "message", exception.getMessage(),
-                "path", "/"
-                );
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(400)
+                .message("Invalid Path Variable")
+                .error("Bad Request")
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(error.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(body);
+                .body(error);
     }
 }

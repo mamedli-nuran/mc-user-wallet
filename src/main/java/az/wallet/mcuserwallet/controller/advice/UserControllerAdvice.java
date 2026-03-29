@@ -2,19 +2,20 @@ package az.wallet.mcuserwallet.controller.advice;
 
 import az.wallet.mcuserwallet.dto.error.ErrorResponse;
 import az.wallet.mcuserwallet.exception.EmailAlreadyExistsException;
-import az.wallet.mcuserwallet.exception.RegisterNotCompleteException;
 import az.wallet.mcuserwallet.exception.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.ResponseErrorHandler;
+
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
+
+@Slf4j
 @RestControllerAdvice
 public class UserControllerAdvice {
     @ExceptionHandler(EmailAlreadyExistsException.class)
@@ -28,6 +29,7 @@ public class UserControllerAdvice {
                 .path(request.getRequestURI())
                 .build();
 
+        log.error(error.toString());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(error);
@@ -46,6 +48,8 @@ public class UserControllerAdvice {
                 .message(e.getMessage())
                 .path(request.getRequestURI())
                 .build();
+
+        log.error(error.toString());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(error);
@@ -65,6 +69,7 @@ public class UserControllerAdvice {
                 .path(request.getRequestURI())
                 .build();
 
+        log.error(error.toString());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
