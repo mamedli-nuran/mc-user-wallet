@@ -8,11 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Slf4j
@@ -73,5 +76,28 @@ public class UserControllerAdvice {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e, HttpServletRequest request) {
+        Map<String, String> validationErrors = new HashMap<>();
+
+         e.getBindingResult()
+                 .getFieldErrors()
+                 .forEach(error -> validationErrors.put(error.getField(), error.getDefaultMessage()));
+
+
+         ErrorResponse errorResponse = ErrorResponse.builder()
+                 .timestamp(LocalDateTime.now())
+                 .status(HttpStatus.BAD_REQUEST)
+                 .error("Validation Failed")
+                 .path(request.getRequestURI())
+                 .errors(validationErrors)
+                 .build();
+         log.error(errorResponse.toString());
+         return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
     }
 }
