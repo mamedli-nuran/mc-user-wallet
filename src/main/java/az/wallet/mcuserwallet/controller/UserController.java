@@ -6,6 +6,7 @@ import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
 import az.wallet.mcuserwallet.dto.response.UsernameChangeResponse;
 import az.wallet.mcuserwallet.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,14 +26,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterResponse> registerUser(@RequestBody UserRegisterRequest request) {
+    public ResponseEntity<UserRegisterResponse> registerUser(@Valid @RequestBody UserRegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.registerUser(request));
     }
 
     @PostMapping("/change-username")
     public ResponseEntity<UsernameChangeResponse> changeUsername(
-            @RequestBody UsernameChangeRequest requestBody, HttpServletRequest request) {
+            @Valid @RequestBody UsernameChangeRequest requestBody, HttpServletRequest request) {
         UsernameChangeResponse response = userService.changeUsername(requestBody);
         response.setPath(request.getRequestURI());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
