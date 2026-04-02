@@ -19,3 +19,15 @@ CREATE TABLE wallets(
     status   VARCHAR(20)    DEFAULT 'ACTIVE',
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+
+
+CREATE TABLE transactions (
+    id         UUID PRIMARY KEY,
+    wallet_id  UUID REFERENCES wallets (id),
+    type       VARCHAR(20),
+    amount     DECIMAL(18, 2),
+    provider   VARCHAR(50),
+    status     VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
