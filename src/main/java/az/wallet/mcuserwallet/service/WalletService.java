@@ -9,15 +9,13 @@ import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.WalletTopUpRequest;
 import az.wallet.mcuserwallet.dto.response.WalletInformationResponse;
 import az.wallet.mcuserwallet.dto.response.WalletTopUpResponse;
-import az.wallet.mcuserwallet.exception.TopUpNotValidException;
 import az.wallet.mcuserwallet.exception.WalletNotFoundException;
 import az.wallet.mcuserwallet.mapper.TransactionMapper;
 import az.wallet.mcuserwallet.mapper.WalletMapper;
 import az.wallet.mcuserwallet.repository.TransactionRepository;
 import az.wallet.mcuserwallet.repository.UserRepository;
 import az.wallet.mcuserwallet.repository.WalletRepository;
-import jakarta.transaction.TransactionScoped;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +33,7 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
     private final WalletMapper walletMapper;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
+    private final TransactionalHistoryService  transactionHistoryService;
 
     @Override
     public WalletInformationResponse getWalletInformation(UUID userId) {
@@ -67,17 +66,14 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
     @Transactional
     public WalletTopUpResponse topUpBalance(UUID userId,WalletTopUpRequest request){
         Optional<Wallet> optionalWallet = walletRepository.findByUserId(userId);
-        // todo не работает сохранение неудачной транзакции при не нахождении кошелька пользователя
+
         if(optionalWallet.isEmpty()){
-            transactionRepository.save(
-                    transactionMapper.toTransaction(null, request, TransactionType.TOPUP, TransactionStatus.FAILED));
+            transactionHistoryService.saveFailedByUUIDTransaction(request);
             throw new WalletNotFoundException("User's wallet with  user id " + userId + " not found");
         }
 
-        // todo не работает сохранение неудачной транзакции для блокнутого пользователя
         if(!optionalWallet.get().getStatus().equals(WalletStatus.ACTIVE)){
-            transactionRepository.save(
-                    transactionMapper.toTransaction(optionalWallet.get().getId(), request, TransactionType.TOPUP, TransactionStatus.FAILED));
+            transactionHistoryService.saveFailedByStatusTransaction(request, optionalWallet.get());
             throw new WalletNotFoundException("User's wallet with  user id " + userId + " not active");
         }
 
