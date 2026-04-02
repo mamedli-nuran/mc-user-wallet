@@ -94,6 +94,7 @@ public class UserControllerAdvice {
                  .error("Validation Failed")
                  .path(request.getRequestURI())
                  .errors(validationErrors)
+                 .message("Invalid Request Info")
                  .build();
          log.error(errorResponse.toString());
          return ResponseEntity
