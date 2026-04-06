@@ -1,5 +1,6 @@
 package az.wallet.mcuserwallet.service;
 
+import az.wallet.mcuserwallet.client.TransactionHistoryClient;
 import az.wallet.mcuserwallet.domain.User;
 import az.wallet.mcuserwallet.domain.Wallet;
 import az.wallet.mcuserwallet.domain.enums.TransactionStatus;
@@ -7,12 +8,12 @@ import az.wallet.mcuserwallet.domain.enums.TransactionType;
 import az.wallet.mcuserwallet.domain.enums.WalletCurrency;
 import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.WalletTopUpRequest;
+import az.wallet.mcuserwallet.dto.response.TransactionSaveResponse;
 import az.wallet.mcuserwallet.dto.response.WalletInformationResponse;
 import az.wallet.mcuserwallet.dto.response.WalletTopUpResponse;
 import az.wallet.mcuserwallet.exception.WalletNotFoundException;
 import az.wallet.mcuserwallet.mapper.TransactionMapper;
 import az.wallet.mcuserwallet.mapper.WalletMapper;
-import az.wallet.mcuserwallet.repository.TransactionRepository;
 import az.wallet.mcuserwallet.repository.UserRepository;
 import az.wallet.mcuserwallet.repository.WalletRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +32,9 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final WalletMapper walletMapper;
-    private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
-    private final TransactionalHistoryService  transactionHistoryService;
+    private final TransactionHistoryService transactionHistoryService;
+    private final TransactionHistoryClient transactionHistoryClient;
 
     @Override
     public WalletInformationResponse getWalletInformation(UUID userId) {
@@ -51,7 +52,7 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
                 .build();
     }
 
-    public void createWalletForUser(User user){
+    public void createWalletForUser(User user) {
         Wallet wallet = Wallet.builder()
                 .status(WalletStatus.ACTIVE)
                 .balance(BigDecimal.ZERO)
@@ -64,24 +65,24 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
 
 
     @Transactional
-    public WalletTopUpResponse topUpBalance(UUID userId,WalletTopUpRequest request){
+    public WalletTopUpResponse topUpBalance(UUID userId, WalletTopUpRequest request) {
         Optional<Wallet> optionalWallet = walletRepository.findByUserId(userId);
 
-        if(optionalWallet.isEmpty()){
+        if (optionalWallet.isEmpty()) {
             transactionHistoryService.saveFailedByUUIDTransaction(request);
             throw new WalletNotFoundException("User's wallet with  user id " + userId + " not found");
         }
 
-        if(!optionalWallet.get().getStatus().equals(WalletStatus.ACTIVE)){
+        if (!optionalWallet.get().getStatus().equals(WalletStatus.ACTIVE)) {
             transactionHistoryService.saveFailedByStatusTransaction(request, optionalWallet.get());
             throw new WalletNotFoundException("User's wallet with  user id " + userId + " not active");
         }
 
         optionalWallet.get().setBalance(optionalWallet.get().getBalance().add(request.getAmount()));
 
+        TransactionSaveResponse response = transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
+                optionalWallet.get().getId(), request.getAmount(), "Million top up", TransactionType.TOPUP, TransactionStatus.SUCCESS));
 
-        transactionRepository.save(
-                transactionMapper.toTransaction(optionalWallet.get().getId(), request, TransactionType.TOPUP, TransactionStatus.SUCCESS));
-        return walletMapper.toWalletTopUpResponse(optionalWallet.get());
+        return walletMapper.toWalletTopUpResponse(optionalWallet.get(), response, "Million top up");
     }
 }
