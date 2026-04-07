@@ -8,6 +8,7 @@ import az.wallet.mcuserwallet.domain.enums.TransactionType;
 import az.wallet.mcuserwallet.domain.enums.WalletCurrency;
 import az.wallet.mcuserwallet.domain.enums.WalletStatus;
 import az.wallet.mcuserwallet.dto.request.WalletTopUpRequest;
+import az.wallet.mcuserwallet.dto.response.TransactionResponse;
 import az.wallet.mcuserwallet.dto.response.TransactionSaveResponse;
 import az.wallet.mcuserwallet.dto.response.WalletInformationResponse;
 import az.wallet.mcuserwallet.dto.response.WalletTopUpResponse;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,4 +87,15 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
 
         return walletMapper.toWalletTopUpResponse(optionalWallet.get(), response, "Million top up");
     }
+
+    @Override
+    public List<TransactionResponse> getWalletHistory(UUID walletId) {
+        if (!walletRepository.existsById(walletId)) {
+            throw new WalletNotFoundException("User's wallet with  wallet id " + walletId + " not found");
+        }
+
+        return transactionHistoryClient.getTransactionsInWallet(walletId);
+    }
+
+
 }
