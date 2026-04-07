@@ -3,6 +3,7 @@ package az.wallet.mcuserwallet.service;
 import az.wallet.mcuserwallet.domain.User;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
 import az.wallet.mcuserwallet.dto.request.UsernameChangeRequest;
+import az.wallet.mcuserwallet.dto.response.UserInfoResponse;
 import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
 import az.wallet.mcuserwallet.dto.response.UsernameChangeResponse;
 import az.wallet.mcuserwallet.exception.EmailAlreadyExistsException;
@@ -15,12 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements az.wallet.mcuserwallet.service.impl.UserService {
     private final UserRepository userRepository;
-    private final WalletRepository walletRepository;
     private final UserMapper userMapper;
     private final WalletService walletService;
 
@@ -47,5 +50,15 @@ public class UserService implements az.wallet.mcuserwallet.service.impl.UserServ
         user.setUsername(requestBody.getUsername());
 
         return userMapper.changeUsernameResponse(requestBody);
+    }
+
+    @Override
+    public UserInfoResponse getUserInfoById(UUID userID) {
+        Optional<User> optionalUser = userRepository.findById(userID);
+        if(optionalUser.isEmpty()) {
+            throw new UserNotFoundException("User with id: " + userID + " not found");
+        }
+
+        return userMapper.userToUserInfoResponse(optionalUser.get());
     }
 }

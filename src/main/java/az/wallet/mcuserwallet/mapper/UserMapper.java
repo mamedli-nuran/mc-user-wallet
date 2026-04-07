@@ -4,6 +4,7 @@ import az.wallet.mcuserwallet.domain.User;
 import az.wallet.mcuserwallet.domain.enums.UserRole;
 import az.wallet.mcuserwallet.dto.request.UserRegisterRequest;
 import az.wallet.mcuserwallet.dto.request.UsernameChangeRequest;
+import az.wallet.mcuserwallet.dto.response.UserInfoResponse;
 import az.wallet.mcuserwallet.dto.response.UserRegisterResponse;
 import az.wallet.mcuserwallet.dto.response.UsernameChangeResponse;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,15 @@ public class UserMapper {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .build();
+    }
+
+    public UserInfoResponse userToUserInfoResponse(User user){
+        return UserInfoResponse.builder()
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .role(user.getUserRole())
                 .build();
     }
 }
