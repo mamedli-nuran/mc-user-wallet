@@ -1,8 +1,9 @@
 package az.wallet.mcuserwallet.domain.enums;
 
 public enum TransactionType {
-    DEPOSIT,
-    TRANSFER,
+    TOP_UP,
+    TRANSFER_OUT,
+    TRANSFER_IN,
     PAYMENT,
-    TOPUP,
+    CASH_OUT
 }

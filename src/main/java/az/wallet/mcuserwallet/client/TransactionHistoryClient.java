@@ -2,8 +2,11 @@ package az.wallet.mcuserwallet.client;
 
 
 import az.wallet.mcuserwallet.dto.request.TransactionSaveRequest;
+import az.wallet.mcuserwallet.dto.request.TransferRequest;
 import az.wallet.mcuserwallet.dto.response.TransactionResponse;
 import az.wallet.mcuserwallet.dto.response.TransactionSaveResponse;
+import az.wallet.mcuserwallet.dto.response.TransferResponse;
+import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,4 +23,7 @@ public interface TransactionHistoryClient {
 
     @GetMapping("/transaction-history/wallet/{walletId}")
     List<TransactionResponse> getTransactionsInWallet(@PathVariable UUID walletId);
+
+    @PostMapping("/transaction-history/transfer")
+    TransferResponse saveTransferInHistory(@RequestBody TransferRequest transferRequest);
 }

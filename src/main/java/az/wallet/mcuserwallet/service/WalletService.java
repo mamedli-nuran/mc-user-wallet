@@ -83,7 +83,7 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
         optionalWallet.get().setBalance(optionalWallet.get().getBalance().add(request.getAmount()));
 
         TransactionSaveResponse response = transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
-                optionalWallet.get().getId(), request.getAmount(), "Million top up", TransactionType.TOPUP, TransactionStatus.SUCCESS));
+                optionalWallet.get().getId(), request.getAmount(), "Million top up", TransactionType.TOP_UP, TransactionStatus.SUCCESS));
 
         return walletMapper.toWalletTopUpResponse(optionalWallet.get(), response, "Million top up");
     }

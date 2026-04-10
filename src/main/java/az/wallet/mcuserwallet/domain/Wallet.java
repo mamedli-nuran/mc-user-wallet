@@ -37,4 +37,14 @@ public class Wallet {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private WalletStatus status;
+
+
+
+    public void withdraw(BigDecimal amount) {
+        this.balance = this.balance.subtract(amount);
+    }
+
+    public void deposit(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
+    }
 }

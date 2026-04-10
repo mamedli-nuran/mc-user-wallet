@@ -21,14 +21,14 @@ public class TransactionHistoryService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveFailedByUUIDTransaction(WalletTopUpRequest request) {
         transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
-                null, request.getAmount(), "Million top up", TransactionType.TOPUP, TransactionStatus.FAILED
+                null, request.getAmount(), "Million top up", TransactionType.TOP_UP, TransactionStatus.FAILED
         ));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveFailedByStatusTransaction(WalletTopUpRequest request, Wallet wallet) {
         transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
-                wallet.getId(), request.getAmount(), "Million top up", TransactionType.TOPUP, TransactionStatus.FAILED
+                wallet.getId(), request.getAmount(), "Million top up", TransactionType.TOP_UP, TransactionStatus.FAILED
         ));
     }
 }
