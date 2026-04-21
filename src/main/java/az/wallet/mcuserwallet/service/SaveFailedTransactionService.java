@@ -11,10 +11,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
-public class TransactionHistoryService {
+public class SaveFailedTransactionService {
     private final TransactionMapper transactionMapper;
     private final TransactionHistoryClient transactionHistoryClient;
 
@@ -30,5 +33,12 @@ public class TransactionHistoryService {
         transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
                 wallet.getId(), request.getAmount(), "Million top up", TransactionType.TOP_UP, TransactionStatus.FAILED
         ));
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveFailedTransaction(UUID senderId, BigDecimal amount) {
+        transactionHistoryClient.save(transactionMapper.toTransactionSaveRequest(
+                senderId, amount, "Transfer to another wallet", TransactionType.TRANSFER_OUT, TransactionStatus.FAILED));
     }
 }
