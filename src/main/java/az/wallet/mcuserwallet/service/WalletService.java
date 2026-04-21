@@ -35,7 +35,7 @@ public class WalletService implements az.wallet.mcuserwallet.service.impl.Wallet
     private final UserRepository userRepository;
     private final WalletMapper walletMapper;
     private final TransactionMapper transactionMapper;
-    private final TransactionHistoryService transactionHistoryService;
+    private final SaveFailedTransactionService transactionHistoryService;
     private final TransactionHistoryClient transactionHistoryClient;
 
     @Override
