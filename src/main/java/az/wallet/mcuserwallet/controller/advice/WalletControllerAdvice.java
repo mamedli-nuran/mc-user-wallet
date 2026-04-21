@@ -1,6 +1,8 @@
 package az.wallet.mcuserwallet.controller.advice;
 
 import az.wallet.mcuserwallet.dto.error.ErrorResponse;
+import az.wallet.mcuserwallet.exception.InsufficientBalanceException;
+import az.wallet.mcuserwallet.exception.WalletNotActiveException;
 import az.wallet.mcuserwallet.exception.WalletNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,38 @@ public class WalletControllerAdvice {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST)
                 .message("Invalid Path Variable")
+                .error("Bad Request")
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(error.toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(WalletNotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleWalletNotActiveException(
+            WalletNotActiveException exception, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .error("Bad Request")
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(error.toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(
+            InsufficientBalanceException exception, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
                 .error("Bad Request")
                 .path(request.getRequestURI())
                 .build();

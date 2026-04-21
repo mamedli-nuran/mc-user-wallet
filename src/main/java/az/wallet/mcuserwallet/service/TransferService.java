@@ -33,7 +33,6 @@ public class TransferService {
                 .findById(request.getReceiverId())
                 .orElseThrow(() -> new WalletNotFoundException("Wallet with UUID: " + request.getReceiverId() + " not found"));
 
-        // TODO handle this exceptions
         if (!senderWallet.getStatus().equals(WalletStatus.ACTIVE)) {
             throw new WalletNotActiveException("Sender wallet with id: " + request.getSenderId() + " not active");
         }
